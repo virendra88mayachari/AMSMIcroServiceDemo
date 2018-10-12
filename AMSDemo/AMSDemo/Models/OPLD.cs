@@ -23,6 +23,7 @@ namespace AMSDemo.Models
         public string CountryCode { get; set; }
         public string PhoneNumber { get; set; }
         public string CreatedDate { get; set; }
+        public string ProcessingStatus { get; set; }
     }
 }
 
