@@ -25,7 +25,7 @@ namespace AMSDemo.Utility
             opldData.ZipCode = opldString.Length > 404 ? opldString.Substring(404, 9).Trim() : "";
             opldData.CountryCode = opldString.Length > 413 ? opldString.Substring(413, 2).Trim() : "";
             opldData.PhoneNumber = opldString.Length > 415 ? opldString.Substring(415, 15).Trim() : "";
-
+            opldData.ProcessingStatus = "Pending";
             return opldData;
         }
     }
