@@ -24,14 +24,14 @@ namespace AMSMicroService2.Controllers
             {
                 log.Info(DateTime.Now.ToString() + " AMS-POC-MicroServiceServicePointGeneration: Read OPLD message and Start processing.");
                 //CreateServicepoint                          
-                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=sakila;user=root;password=techM@Ups1");//HttpContext.RequestServices.GetService(typeof(SakilaContext)) as SakilaContext;
+                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=ams;user=root;password=techM@Ups1");//HttpContext.RequestServices.GetService(typeof(SakilaContext)) as SakilaContext;
 
                 log.Info(DateTime.Now.ToString() + " AMS-POC-MicroServiceServicePointGeneration: Getting OPLD tracking number matching DIALS record.");
                 //Check if opld tracking number matches with dials matching number
                 DIALS dialsObject = context.GetMatchingDialsID(opldObject.TrackingNumber);
 
                 ServicePoint servicePointObject = new ServicePoint();
-                if (dialsObject != null)
+                if (!string.IsNullOrEmpty(dialsObject.TrackingNumber))
                 {
                     servicePointObject = ServicePointUtility.CreateServicePoint(opldObject, dialsObject.ConsigneeName, dialsObject.ClarifiedSignature, true);
                 }
@@ -44,6 +44,9 @@ namespace AMSMicroService2.Controllers
 
                 //Write Servicepoint to DB
                 context.AddNewServicePoint(servicePointObject);
+
+                //Update OPLD Processing Status
+                context.UpdateOPLDProcessingStatus(opldObject.TrackingNumber);
             }
             catch (Exception ex)
             {

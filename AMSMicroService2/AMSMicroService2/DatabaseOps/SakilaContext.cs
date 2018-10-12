@@ -147,6 +147,21 @@ namespace AMSMicroService2.DatabaseOps
             return rowsAffected > 0 ? true : false;
         }
 
+        public bool UpdateOPLDProcessingStatus(string trackingNumber)
+        {
+            int rowsAffected = 0;
+
+            using (MySqlConnection conn = GetConnection())
+            {
+                conn.Open();
+                MySqlCommand cmd = new MySqlCommand("Update oplddetails set ProcessingStatus='Processed' WHERE TrackingNumber='" + trackingNumber + "'", conn);
+
+                rowsAffected = cmd.ExecuteNonQuery();
+            }
+
+            return rowsAffected > 0 ? true : false;
+        }
+
         public DIALS GetMatchingDialsID(string trackingNumber)
         {
             DIALS dialsObject = new DIALS();
@@ -156,7 +171,7 @@ namespace AMSMicroService2.DatabaseOps
                 using (MySqlConnection conn = GetConnection())
                 {
                     conn.Open();
-                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM DialsData WHERE TrackingNumber =", conn);
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM DialsData WHERE TrackingNumber='" + trackingNumber + "'", conn);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -167,6 +182,7 @@ namespace AMSMicroService2.DatabaseOps
                             }
                             else
                             {
+                                dialsObject.TrackingNumber = reader.GetString("TrackingNumber");
                                 dialsObject.DialsID = reader.GetInt32("DialsID");
                                 dialsObject.ConsigneeName = reader.GetString("ConsigneeName");
                                 dialsObject.ClarifiedSignature = reader.GetString("ClarifiedSignature");
