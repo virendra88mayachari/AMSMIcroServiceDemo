@@ -103,7 +103,7 @@ namespace AMSDemo.DatabaseOps
                 MySqlCommand cmd = new MySqlCommand("INSERT INTO oplddetails VALUES('" + (GetLastOPLDID() + 1) + "','" + newOPLD.TrackingNumber + "','" + newOPLD.ShiperNumber + "','" + newOPLD.ShiperCountry +
                     "','" + newOPLD.VersionNumber + "','" + newOPLD.AttentionName + "','" + newOPLD.AddressType + "','" + newOPLD.AddressLine1 + "','" + newOPLD.AddressLine2 +
                     "','" + newOPLD.AddressLine3 + "','" + newOPLD.CityName + "','" + newOPLD.StateCode + "','" + newOPLD.ZipCode +
-                    "','" + newOPLD.CountryCode + "','" + newOPLD.PhoneNumber + "','" + DateTime.Now.ToString() + "')", conn);
+                    "','" + newOPLD.CountryCode + "','" + newOPLD.PhoneNumber + "','" + DateTime.Now.ToString() + "','" + newOPLD.ProcessingStatus+ "')", conn);
 
                 rowsAffected = cmd.ExecuteNonQuery();
             }
@@ -156,7 +156,7 @@ namespace AMSDemo.DatabaseOps
                 using (MySqlConnection conn = GetConnection())
                 {
                     conn.Open();
-                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM DialsData WHERE TrackingNumber =", conn);
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM DialsData WHERE TrackingNumber='" + trackingNumber + "'", conn);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -181,6 +181,40 @@ namespace AMSDemo.DatabaseOps
             }
 
             return dialsObject;
+        }
+
+        public bool CheckIsTrackingNumberAlreadyExists(string trackingNumber)
+        {
+            bool result = false; 
+            try
+            {
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM oplddetails WHERE TrackingNumber='" + trackingNumber +"'", conn);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.IsDBNull(0))
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                string trackNumber = reader.GetString("TrackingNumber");
+                                result = string.IsNullOrEmpty(trackNumber) ? false : true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return result;
         }
     }
 }

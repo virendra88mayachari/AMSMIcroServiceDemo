@@ -5,6 +5,7 @@ using AMSDemo.Utility;
 using AMSDemo.DatabaseOps;
 using System.Threading;
 using System;
+using Microsoft.Extensions.Configuration;
 
 namespace AMSDemo.Controllers
 {
@@ -49,8 +50,7 @@ namespace AMSDemo.Controllers
 
         //    return Ok(new { Result = "Success" });
         //}
-
-
+               
         [HttpPost]
         public IActionResult ProcessOPLDNPushTOMQ1(OPLD opldObject)
         {
@@ -104,6 +104,16 @@ namespace AMSDemo.Controllers
 
                         //Process OPLD data
                         var opldObject = OPLDUtility.ProcessOPLD(opldString);
+
+                        //Check is File already Processed
+                        SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=ams;user=root;password=techM@Ups1");                        
+
+                        bool trackResult = context.CheckIsTrackingNumberAlreadyExists(opldObject.TrackingNumber);
+                        if (trackResult)
+                        {
+                            log.Info(DateTime.Now.ToString() + " AMS-POC-MicroServiceProcessOPLDNDIALSFiles: OPLD file Read already processed.");
+                            continue;
+                        }
 
                         log.Info(DateTime.Now.ToString() + " AMS-POC-MicroServiceProcessOPLDNDIALSFiles: OPLD file Processed.");
 
@@ -258,7 +268,7 @@ namespace AMSDemo.Controllers
             {
                 //Push OPLD in DB
                 //SakilaContext context = HttpContext.RequestServices.GetService(typeof(SakilaContext)) as SakilaContext;
-                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=sakila;user=root;password=techM@Ups1");
+                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=ams;user=root;password=techM@Ups1");
                 context.AddNewOPLD(opldObject);
 
                 log.Info(DateTime.Now.ToString() + " AMS-POC-MicroServiceProcessOPLDNDIALSFiles: OPLD Data inserted in DB.");
@@ -282,7 +292,7 @@ namespace AMSDemo.Controllers
         {
             try
             {
-                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=sakila;user=root;password=techM@Ups1");
+                SakilaContext context = new SakilaContext("server=127.0.01;port=3306;database=ams;user=root;password=techM@Ups1");
                 context.AddNewDIALS(dialsObject);
 
             }
